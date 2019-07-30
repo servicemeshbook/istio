@@ -1,10 +1,10 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: ServiceEntry
 metadata:
-  name: google
+  name: ibm
 spec:
   hosts:
-  - www.google.com
+  - www.ibm.com
   ports:
   - number: 443
     name: https
