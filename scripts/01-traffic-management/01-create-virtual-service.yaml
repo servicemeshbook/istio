@@ -21,6 +21,6 @@ spec:
         prefix: /api/v1/products
     route:
     - destination:
-        host: productpage.istio-lab.svc.cluster.local
+        host: productpage
         port:
           number: 9080
