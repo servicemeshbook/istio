@@ -48,13 +48,13 @@ step certificate create istio.io istio.crt istio.key --profile intermediate-ca -
 7.0
 
 ```
-step certificate create httpbin.istio.io httpbin.crt httpbin.key --profile leaf --ca istio.crt --ca-key istio.key --no-password --insecure
+step certificate create httpbin.istio.io httpbin.crt httpbin.key --profile leaf --ca istio.crt --ca-key istio.key --no-password --insecure --not-after 2160h
 ```
 
 8.0
 
 ```
-step certificate create bookinfo.istio.io bookinfo.crt bookinfo.key --profile leaf --ca istio.crt --ca-key istio.key --no-password --insecure
+step certificate create bookinfo.istio.io bookinfo.crt bookinfo.key --profile leaf --ca istio.crt --ca-key istio.key --no-password --insecure --not-after 2160h
 ```
 
 9.0
@@ -141,15 +141,8 @@ kubectl -n istio-system apply -f 01-add-bookinfo-https-to-mygateway.yaml
 kubectl -n istio-system apply -f 02-create-virtual-service-for-httpbin.yaml
 ```
 
+
 20.0
-
-```
-export INGRESS_GW=$(kubectl -n istio-system get pods -l istio=ingressgateway -o jsonpath='{.items[0].metadata.name}') ; echo $INGRESS_GW
-
-kubectl -n istio-system delete pod $INGRESS_GW
-```
-
-21.0
 
 ```
 curl -HHost:httpbin.istio.io --resolve httpbin.istio.io:$INGRESS_PORT:$INGRESS_HOST --cacert $HOME/step/istio.crt https://httpbin.istio.io/status/418
@@ -157,6 +150,15 @@ curl -HHost:httpbin.istio.io --resolve httpbin.istio.io:$INGRESS_PORT:$INGRESS_H
 curl -HHost:httpbin.istio.io --resolve httpbin.istio.io:$INGRESS_PORT:$INGRESS_HOST --cacert $HOME/step/istio.crt https://httpbin.istio.io/ip
 
 ```
+
+21.0 - Optional step only if above is not successful.
+
+```
+export INGRESS_GW=$(kubectl -n istio-system get pods -l istio=ingressgateway -o jsonpath='{.items[0].metadata.name}') ; echo $INGRESS_GW
+
+kubectl -n istio-system delete pod $INGRESS_GW
+```
+
 
 22.0
 
@@ -181,7 +183,7 @@ kubectl -n istio-system delete secret httpbin-keys
 25.0
 
 ```
-step certificate create httpbin.istio.io httpbin.crt httpbin.key --profile leaf --ca istio.crt --ca-key istio.key --no-password --insecure
+step certificate create httpbin.istio.io httpbin.crt httpbin.key --profile leaf --ca istio.crt --ca-key istio.key --no-password --insecure --not-after 2160h
 ```
 
 26.0
@@ -246,13 +248,18 @@ curl -HHost:httpbin.istio.io --resolve httpbin.istio.io:$INGRESS_PORT:$INGRESS_H
 ```
 cd ~/istio-$ISTIO_VERSION
 
-helm template install/kubernetes/helm/istio/ --name istio --namespace istio-system -x charts/nodeagent/templates/serviceaccount.yaml --set nodeagent.enabled=true > ~/servicemesh/istio-node-agent-sa.yaml
-
-kubectl -n istio-system apply -f ~/servicemesh/istio-node-agent.yaml
-
-helm template install/kubernetes/helm/istio/ --name istio --namespace istio-system -x charts/nodeagent/templates/daemonset.yaml --set nodeagent.enabled=true --set nodeagent.env.CA_PROVIDER=Citadel --set nodeagent.env.CA_ADDR=istio-citadel:8060 > ~/servicemesh/istio-node-agent.yaml
-
-kubectl -n istio-system apply -f ~/servicemesh/istio-node-agent-sa.yaml
+$ helm template install/kubernetes/helm/istio --name istio \
+ --namespace istio-system \
+ --set gateways.istio-ingressgateway.sds.enabled=true \
+ --set security.enabled=true \
+ --set galley.enabled=true \
+ --set sidecarInjectorWebhook.enabled=true \
+ --set mixer.enabled=true \
+ --set mixer.policy.enabled=true \
+ --set mixer.telemetry.enabled=true \
+ --set prometheus.enabled=true \
+ --set pilot.sidecar=true \
+ --values install/kubernetes/helm/istio/values-istio-sds-auth.yaml | kubectl apply -f -
 ```
 
 36.0

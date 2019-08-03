@@ -87,7 +87,10 @@ kubectl -n istio-lab get svc -o custom-columns=NAME:.metadata.name,CLUSTER_IP:.s
 14.0
 
 ```
-curl -s http://10.105.226.61:9080 | grep title
+
+PRODUCTPAGE_IP=$(kubectl -n istio-lab get svc -l app=productpage -o jsonpath='{.items...spec.clusterIP}') ; echo $PRODUCTPAGE_IP
+
+curl -s http://$PRODUCTPAGE_IP:9080 | grep title
 ```
 
 15.0
@@ -160,7 +163,7 @@ kubectl -n istio-lab apply -f 06-canary-deployment-weight-based-routing.yaml
 ```
 echo $INGRESS_HOST
 
-curl -s http://$INGRESS_HOST/productpage?[1-1000] | grep -c "full stars"
+time curl -s http://$INGRESS_HOST/productpage?[1-1000] | grep -c "full stars"
 ```
 
 27.0
@@ -265,7 +268,7 @@ kubectl -n istio-system get svc istio-ingressgateway -o custom-columns=Name:.met
 ```
 export INGRESS_IP=$(kubectl -n istio-system get svc istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}') ; echo $INGRESS_IP
 
-echo "$INGRESS_IP bookinfo.istio.io" | sudo tee -a /etc/hosts
+if ! grep -q bookinfo.istio.io /etc/hosts ; then echo "$INGRESS_IP bookinfo.istio.io" | sudo tee -a /etc/hosts; fi
 ```
 
 44.0
@@ -451,5 +454,12 @@ kubectl -n istio-lab apply -f 23-mirror-traffic-between-v1-and-v2.yaml
 
 ```
 kubectl -n istio-lab exec -it $RATING_POD -c ratings -- curl http://httpbin:8000/headers | python -m json.tool
+```
+
+72.0
+```
+kubectl -n istio-system get cm istio -o yaml | sed 's/mode: REGISTRY_ONLY/mode: ALLOW_ANY/g' | kubectl replace -n istio-system -f -
+
+kubectl -n istio-system get cm istio -o yaml | grep -m 1 -o "mode: ALLOW_ANY"
 ```
 
