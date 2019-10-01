@@ -1,248 +1,245 @@
-# Learn Istio By Examples
+# Istio
 
-Follow the examples here as you read the book.
-
-## Build your own Kubernetes cluster
+# Prerquisites
 
 Follow instructions to build your own Kubernetes environment by going through [https://github.com/servicemeshbook/byok](https://github.com/servicemeshbook/byok).
 
-## Follow Install Istio chapter
+# Follow Chapter 8 - Install Demo Application
+# Follow Chapter 9 - Install Istio
 
-The brief instructions are as follows.
-
-
-### Download Istio
-
-Go to https://istio.io
-
-We will be using Istio version 1.2.2 for the purpose of this branch.
-
-Download using `curl` command.
-
+# Find out all previous releases of Istio
 ```
-$ cd ~/
-$ curl -L https://git.io/getLatestIstio | ISTIO_VERSION=1.2.2 sh -
-
-Downloaded into istio-1.2.2:
-bin  install  istio.VERSION  LICENSE  README.md  samples  tools
-Add /root/bin/servicemesh/istio-1.2.2/bin to your path; e.g copy paste in your shell and/or ~/.profile:
-export PATH="$PATH:/root/bin/servicemesh/istio-1.2.2/bin"
+curl -L -s https://api.github.com/repos/istio/istio/releases | grep tag_name
 ```
 
-Add istio to your path. Edit `.bashrc` and add PATH. Hint: export PATH is shown above.
-
-Your path may be different depending upon the folder in which you downloaded the Istio
+# find out the latest version
 
 ```
-ISTIO_VERSION=1.2.2
+export ISTIO_VERSION=$(curl -L -s https://api.github.com/repos/istio/istio/releases/latest | grep tag_name | sed "s/ *\"tag_name\": *\"\\(.*\\)\",*/\\1/")
+```
+
+# Download version 1.3.1 to stay consistent with the hands-on exercises for this book
+
+```
+cd ## Switch to your home directory
+export ISTIO_VERSION=1.3.1
+curl -L https://git.io/getLatestIstio | sh -
+cd istio-$ISTIO_VERSION
+```
+
+# Edit your profile ~/.bashrc to include the following lines to add istioctl on system path
+
+```
+vi ~/.bashrc
+
+export ISTIO_VERSION=1.2.3
 if [ -d ~/istio-${ISTIO_VERSION}/bin ] ; then
-  export PATH="$PATH:~/istio-${ISTIO_VERSION}/bin"
+    export PATH="~/istio-${ISTIO_VERSION}/bin:$PATH"
 fi
 ```
 
-Source `.bashrc`
+# Source .bashrc to make changes to the system path
 
 ```
 source ~/.bashrc
 ```
 
-Run `istioctl verify-install` to make sure that Istio meets all the requirements.
-
-### Install Istio without using mTLS
-
-Makes sure that `ISTIO_VERSION` is set in your `.bashrc`
+# Check if the current Kubernetes environment is ready for the install of chosen Istio version
 
 ```
-cd ~/istio-${ISTIO_VERSION}/install/kubernetes
-kubectl apply -f istio-demo.yaml   
-
-<< Output ommitted>>
-service/istio-galley created
-service/istio-egressgateway created
-service/istio-ingressgateway created
-service/grafana created
-service/kiali created
-service/istio-policy created
-service/istio-telemetry created
-service/istio-pilot created
-service/prometheus created
-service/istio-citadel created
-service/istio-sidecar-injector created
-deployment.extensions/istio-galley created
-deployment.extensions/istio-egressgateway created
-deployment.extensions/istio-ingressgateway created
-deployment.extensions/grafana created
-deployment.extensions/kiali created
-deployment.extensions/istio-policy created
-deployment.extensions/istio-telemetry created
-deployment.extensions/istio-pilot created
-deployment.extensions/prometheus created
-deployment.extensions/istio-citadel created
-deployment.extensions/istio-sidecar-injector created
-deployment.extensions/istio-tracing created
-<< Output ommitted>>
-
+istioctl verify-install
 ```
 
-Check `istioctl version`
+# Remove the tiller pod as we will initialize helm again
 
 ```
-$ istioctl version --short
-client version: 1.2.2
-citadel version: 1.2.2
-egressgateway version: 1.2.2
-galley version: 1.2.2
-ingressgateway version: 1.2.2
-pilot version: 1.2.2
-policy version: 1.2.2
-sidecar-injector version: 1.2.2
-telemetry version: 1.2.2
+helm reset --force
 ```
 
-Check pod status
+# Create istio-system namespace which will be used by Istio
 
 ```
-# kubectl -n istio-system get pods
-NAME                                      READY   STATUS      RESTARTS   AGE
-grafana-5c45779547-9jxsb                  1/1     Running     0          3m15s
-istio-citadel-5bbc997554-8nn4t            1/1     Running     0          3m8s
-istio-cleanup-secrets-1.1.3-wc8tw         0/1     Completed   0          3m19s
-istio-egressgateway-79df47bcfb-gwzgl      1/1     Running     0          3m17s
-istio-galley-5ff6d64c5f-ddpwd             1/1     Running     0          3m18s
-istio-grafana-post-install-1.1.3-qxbrl    0/1     Completed   0          3m19s
-istio-ingressgateway-5c6bcff97c-wtg9x     1/1     Running     0          3m16s
-istio-pilot-69d7cc7c97-84zcd              2/2     Running     0          3m10s
-istio-policy-574f8cf96b-x5tml             2/2     Running     5          3m13s
-istio-security-post-install-1.1.3-cmtm2   0/1     Completed   0          3m19s
-istio-sidecar-injector-549585c8d9-rj9r6   1/1     Running     0          3m7s
-istio-telemetry-6c9df8f48b-k4ltv          2/2     Running     5          3m11s
-istio-tracing-5fbc94c494-jpdgz            1/1     Running     0          3m7s
-kiali-56d95cf466-q8vqt                    1/1     Running     0          3m15s
-prometheus-8647cf4bc7-p8b4v               1/1     Running     0          3m9s
+kubectl create namespace istio-system
 ```
 
-### Label istio-lab with istio-injection=enabled
+# Grant cluster-admin role to the default service account for the namespace istio-system
 
 ```
-$ kubectl create ns istio-lab
-$ kubectl create clusterrolebinding istio-lab-cluster-role-binding --clusterrole=cluster-admin --serviceaccount=istio-lab:default
-
-$ kubectl label namespace istio-lab istio-injection=enabled
+kubectl create clusterrolebinding istio-system-cluster-role-binding --clusterrole=cluster-admin --serviceaccount=istio-system:default
 ```
 
-#### Simulate Load Balancer
-
-Use `keepalived` Helm chart from : [https://github.com/servicemeshistio/keepalived](https://github.com/servicemeshistio/keepalived)
-
-Download Helm Chart
-
-```console
-cd
-git clone https://github.com/servicemeshistio/keepalived.git
-```
-
-Install Helm Chart
-
-Prerequisites:
-
-`ipvs` module is needed by the vip manager.
-
-Make sure that the ip_vs module is loaded.
+# Install the Istio CRDs and re-initialize tiller to include istio-system namespace
 
 ```
-$ sudo lsmod| grep ^ip_vs
+cd ~/istio-$ISTIO_VERSION/install/kubernetes/helm/istio-init/files
+
+for i in ./crd*yaml; do kubectl apply -f $i; done
 ```
 
-If no `ip_vs` module is loaded, install `ipvsadm` 
-
-```console
-$ sudo yum -y install ipvsadm
-
-$ sudo ipvsadm -ln
-IP Virtual Server version 1.2.1 (size=4096)
-Prot LocalAddress:Port Scheduler Flags
-  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
-
-$ sudo lsmod | grep ^ip_vs
-ip_vs                 145497  0
-```
-
-Add the module to `/etc/modules-load.d/ipvs.conf` to load the module in case of a reboot.
-
-```console
-$ echo "ip_vs" | sudo tee /etc/modules-load.d/ipvs.conf
-```
-
-```console
-echo Use subnet mask 29 to reserve 6 hosts in 192.168.142.248/29 Class C network.
-echo keepalivedCloudProvider.serviceIPRange="192.168.142.248/29"
-
-cd keepalived
-
-helm install . --name keepalived --namespace istio-system \
- --set keepalivedCloudProvider.serviceIPRange="192.168.142.248/29" --tls
+# Change directory to Istio helm charts, create a tiller service account and re-initialize the service
 
 ```
+cd ~/istio-$ISTIO_VERSION/install/kubernetes/helm
 
-#### Check load balancer
-
-```console
-# kubectl -n istio-system get svc
-Name                     TYPE           CLUSTER-IP   EXTERNAL-IP       PORT(S)                                                                                                                                      AGE
-grafana                  ClusterIP      10.0.0.65    <none>            3000/TCP                                                                                                                                     86m
-istio-citadel            ClusterIP      10.0.0.75    <none>            8060/TCP,15014/TCP                                                                                                                           86m
-istio-egressgateway      ClusterIP      10.0.0.244   <none>            80/TCP,443/TCP,15443/TCP                                                                                                                     86m
-istio-galley             ClusterIP      10.0.0.90    <none>            443/TCP,15014/TCP,9901/TCP                                                                                                                   86m
-istio-ingressgateway     LoadBalancer   10.0.0.229   192.168.142.249   80:31380/TCP,443:31390/TCP,31400:31400/TCP,15029:31730/TCP,15030:31651/TCP,15031:30465/TCP,15032:32041/TCP,15443:31112/TCP,15020:30638/TCP   86m
-istio-pilot              ClusterIP      10.0.0.63    <none>            15010/TCP,15011/TCP,8080/TCP,15014/TCP                                                                                                       86m
-istio-policy             ClusterIP      10.0.0.88    <none>            9091/TCP,15004/TCP,15014/TCP                                                                                                                 86m
-istio-sidecar-injector   ClusterIP      10.0.0.120   <none>            443/TCP                                                                                                                                      86m
-istio-telemetry          ClusterIP      10.0.0.45    <none>            9091/TCP,15004/TCP,15014/TCP,42422/TCP                                                                                                       86m
-jaeger-agent             ClusterIP      None         <none>            5775/UDP,6831/UDP,6832/UDP                                                                                                                   86m
-jaeger-collector         ClusterIP      10.0.0.54    <none>            14267/TCP,14268/TCP                                                                                                                          86m
-jaeger-query             ClusterIP      10.0.0.14    <none>            16686/TCP                                                                                                                                    86m
-kiali                    ClusterIP      10.0.0.92    <none>            20001/TCP                                                                                                                                    86m
-prometheus               ClusterIP      10.0.0.218   <none>            9090/TCP                                                                                                                                     86m
-tracing                  ClusterIP      10.0.0.135   <none>            80/TCP                                                                                                                                       86m
-zipkin                   ClusterIP      10.0.0.158   <none>            9411/TCP                                                                                                                                     86m
-
-```
-### Deploy application
-
-```
-$ mkdir -p ~/servicemesh
-$ curl -L https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/platform/kube/bookinfo.yaml -o ~/servicemesh/bookinfo.yaml
+kubectl apply -f helm-service-account.yaml
+helm init --service-account tiller
 ```
 
-Deploy application
-
-```console
-$ kubectl -n istio-lab apply -f ~/servicemesh/bookinfo.yaml
-
-service/details created
-deployment.extensions/details-v1 created
-service/ratings created
-deployment.extensions/ratings-v1 created
-service/reviews created
-deployment.extensions/reviews-v1 created
-deployment.extensions/reviews-v2 created
-deployment.extensions/reviews-v3 created
-service/productpage created
-deployment.extensions/productpage-v1 created
+# Validate the Tiller pod is running in kube-system namespace
 
 ```
-
-Check pods and wait until all show as `Running`.
-
-```console
-# kubectl -n istio-lab get pods
-NAME                              READY   STATUS    RESTARTS   AGE
-details-v1-bc557b7fc-5vn22        2/2     Running   0          42s
-productpage-v1-6597cb5df9-pqx8s   2/2     Running   0          40s
-ratings-v1-5c46fc6f85-5tw4n       2/2     Running   0          42s
-reviews-v1-69dcdb544-nglxq        2/2     Running   0          42s
-reviews-v2-65fbdc9f88-lttjs       2/2     Running   0          41s
-reviews-v3-bd8855bdd-85flj        2/2     Running   0          40s
+kubectl get pods -n kube-system | grep tiller
 ```
 
-Now, you ae ready to follow the chapter to practice the examples.
+# Run the following helm template command to generate the yaml file 
+
+```
+cd ~/istio-$ISTIO_VERSION
+helm template install/kubernetes/helm/istio --name istio \
+ --namespace istio-system \
+ --values install/kubernetes/helm/istio/values-istio-demo.yaml | \
+ kubectl apply -f -
+```
+
+ # Delete previous installation
+```
+ cd ~/istio-$ISTIO_VERSION
+ helm template install/kubernetes/helm/istio --name istio \
+ --namespace istio-system \
+ --values install/kubernetes/helm/istio/values-istio-demo.yaml |\
+ kubectl delete -f -
+```
+
+ # First, create the custom resource definitions required by Istio
+
+```
+cd ~/istio-$ISTIO_VERSION/install/kubernetes/helm
+helm install ./istio-init --name istio-init --namespace istio-system
+```
+
+# Next, run the helm install command to install istio-demo (permissive mutual TLS)
+```
+helm install ./istio -f istio/values-istio-demo.yaml \
+--name istio --namespace istio-system
+```
+
+# Check deployment resources in istio-system.
+```
+kubectl -n istio-system get deployment
+```
+
+# Uninstall Istio using helm and tiller 
+```
+helm del --purge istio
+helm del --purge istio-init
+```
+
+# Install Istio using a demo profile
+```
+cd ~/istio-$ISTIO_VERSION/
+kubectl apply -f install/kubernetes/istio-demo.yaml
+```
+
+# Check the version of the istioctl and different Istio modules
+
+```
+istioctl version --short
+```
+
+# Installing a Load Balancer
+# Make sure that the ip_vs kernel module is loaded
+
+```
+sudo lsmod | grep ^ip_vs
+sudo ipvsadm -ln
+sudo lsmod | grep ^ip_vs
+```
+
+# Add ip_vs to the module list so that it is loaded automatically on reboot
+```
+echo "ip_vs" | sudo tee /etc/modules-load.d/ipvs.conf
+```
+
+# Label node proxy=true for keepalived
+```
+kubectl label node osc01.servicemesh.local proxy=true
+```
+
+# Install keepalived through a helm chart
+
+```
+helm repo add kaal https://servicemeshbook.github.io/keepalived
+helm repo update
+```
+
+# Grant cluster admin to the default service account in keepalived namespace 
+
+```
+kubectl create clusterrolebinding keepalived-cluster-role-binding \
+--clusterrole=cluster-admin --serviceaccount=keepalived:default
+
+
+helm install kaal/keepalived --name keepalived --namespace keepalived \
+--set keepalivedCloudProvider.serviceIPRange="192.168.142.248/29" \
+--set nameOverride="lb"
+```
+
+# Test the readiness and status of pods in keepalived namespace
+
+```
+kubectl -n keepalived get pods
+```
+
+# Enable Istio for existing application
+
+# Generate modified yaml with sidecar proxy for the bookinfo application
+```
+cd ~/servicemesh
+istioctl kube-inject -f bookinfo.yaml > bookinfo_proxy.yaml
+```
+
+# Do a "diff" on original and modified file
+```
+diff -y bookinfo.yaml bookinfo_proxy.yaml
+```
+
+# Deploy modified bookinfo_proxy.yaml to inject a sidecar proxy to the existing bookinfo microservice
+
+```
+kubectl -n istio-lab apply -f bookinfo_proxy.yaml
+```
+
+# Wait a few minutes for the existing pods to terminate and for the new pods to be ready
+```
+kubectl -n istio-lab get pods
+```
+
+# Enable Istio for new applications
+
+# First delete istio-lab namespace
+
+```
+kubectl delete namespace istio-lab
+```
+
+# Create istio-lab namespace again and label it using istio-injection=enabled
+```
+kubectl create namespace istio-lab
+kubectl label namespace istio-lab istio-injection=enabled
+```
+
+# Deploy the application again.
+```
+kubectl -n istio-lab apply -f ~/servicemesh/bookinfo.yaml
+```
+
+# Check pods
+```
+kubectl -n istio-lab get pods
+```
+
+# Check the current auto scaling for every Istio component
+
+```
+kubectl -n istio-system get hpa
+```
