@@ -16,6 +16,7 @@ curl -L -s https://api.github.com/repos/istio/istio/releases | grep tag_name
 
 ```
 export ISTIO_VERSION=$(curl -L -s https://api.github.com/repos/istio/istio/releases/latest | grep tag_name | sed "s/ *\"tag_name\": *\"\\(.*\\)\",*/\\1/")
+echo $ISTIO_VERSION
 ```
 
 ### Download version 1.3.1 to stay consistent with the hands-on exercises for this book
@@ -32,7 +33,7 @@ cd istio-$ISTIO_VERSION
 ```
 vi ~/.bashrc
 
-export ISTIO_VERSION=1.2.3
+export ISTIO_VERSION=1.3.1
 if [ -d ~/istio-${ISTIO_VERSION}/bin ] ; then
     export PATH="~/istio-${ISTIO_VERSION}/bin:$PATH"
 fi
@@ -101,6 +102,11 @@ helm template install/kubernetes/helm/istio --name istio \
  kubectl apply -f -
 ```
 
+### Check pods in istio-system and wait until all are ready
+```
+kubectl get pods -n istio-system
+```
+
  ### Delete previous installation
 ```
  cd ~/istio-$ISTIO_VERSION
@@ -126,6 +132,11 @@ helm install ./istio -f istio/values-istio-demo.yaml \
 ### Check deployment resources in istio-system.
 ```
 kubectl -n istio-system get deployment
+```
+
+### Check pods in istio-system and wait until all are ready
+```
+kubectl get pods -n istio-system
 ```
 
 ### Uninstall Istio using helm and tiller 
