@@ -1,6 +1,6 @@
-# Traffic Management
+# Istio - Traffic Management
 
-## Commands used in this chapter
+## Commands used in Chapter 10 - Traffic Management
 
 ### Get scripts from github
 
@@ -122,7 +122,7 @@ kubectl -n istio-lab edit svc productpage
 ### Check services
 
 ```
-kubectl -n istio-lab get svc
+kubectl -n istio-lab get svc productpage
 ```
 
 ### Find name of the VM or master node
@@ -370,7 +370,7 @@ kubectl -n istio-lab apply -f 15-http-service-entry-for-httpbin.yaml
 kubectl -n istio-lab apply -f 16-https-service-entry-for-ibm.yaml
 ```
 
-### Wait couple of seconds and then use curl from ratings microservice to test external services for google
+### Wait couple of seconds and then use curl from ratings microservice to test external services for ibm
 
 ```
 kubectl -n istio-lab exec -it -c ratings $RATING_POD -- curl -LI https://www.ibm.com | grep "HTTP/"
@@ -526,3 +526,4 @@ kubectl -n istio-system get cm istio -o yaml | sed 's/mode: REGISTRY_ONLY/mode: 
 kubectl -n istio-system get cm istio -o yaml | grep -m 1 -o "mode: ALLOW_ANY"
 ```
 
+### End of Istio Traffic management exercises 
