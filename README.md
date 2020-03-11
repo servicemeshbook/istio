@@ -1,4 +1,4 @@
-# Learn Linkerd by Examples
+# Learn Istio by Examples
 
 - [Build Your Kubernetes Environment](https://github.com/servicemeshbook/byok)
 - [Install Demo Application]()
