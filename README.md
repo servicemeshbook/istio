@@ -1,6 +1,6 @@
 # Learn Istio by Examples
 
-- [Chapter 06 - Build Your Own Kubernetes Environment](/byok)
+- [Chapter 06 - Build Your Own Kubernetes Environment](https://github.com/servicemeshbook/byok)
 - [Chapter 08 - Installing a Demo Application](/demo-application.md)
 - [Chapter 09 - Installing Istio](/Install-Istio.md)
 - [Chapter 10 - Exploring Istio Traffic Management Capabilities](/scripts/01-traffic-management)
