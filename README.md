@@ -24,7 +24,7 @@ This branch has scripts that works with 1.3.3 release of Istio.
 
 ### Chapter 09 - Installing Istio
 
-[![asciicast](https://asciinema.org/a/271945.svg)](https://asciinema.org/a/271945)
+[![asciicast](https://asciinema.org/a/310475.svg)](https://asciinema.org/a/310475)
 
 ### Chapter 10 - Exploring Istio Traffic Management Capabilities
 
