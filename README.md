@@ -16,7 +16,7 @@ This branch has scripts that works with 1.3.3 release of Istio.
 
 ### Chapter 06 - Build Your Own Kubernetes Environment
 
-[![asciicast](https://asciinema.org/a/271731.svg)](https://asciinema.org/a/271731)
+[![asciicast](https://asciinema.org/a/310461.svg)](https://asciinema.org/a/310461)
 
 ### Chapter 08 - Installing a Demo Application
 
