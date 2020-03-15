@@ -1,6 +1,4 @@
-# Istio - Policy
-
-## Commands used in Chapter 12 - Policy
+# Chapter 12 - Enabling Istio Policy Controls
 
 ### Change directory
 
