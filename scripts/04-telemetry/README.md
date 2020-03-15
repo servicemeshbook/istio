@@ -1,6 +1,4 @@
-# Istio - Telemetry
-
-## Commands used in Chapter 13 - Telemetry
+# Chapter 13 - Exploring Istio - Telemetry Features
 
 ### Change directory
 
