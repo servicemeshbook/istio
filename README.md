@@ -1,16 +1,16 @@
 # Learn Istio by Examples
 
-- [Chapter 06 - Build Your Own Kubernetes Environment](https://github.com/servicemeshbook/byok)
-- [Chapter 08 - Installing a Demo Application](https://github.com/servicemeshbook/istio/blob/master/demo-application.md)
-- [Chapter 09 - Installing Istio](https://github.com/servicemeshbook/istio/blob/master/Install-Istio.md)
-- [Chapter 10 - Exploring Istio Traffic Management Capabilities](https://github.com/servicemeshbook/istio/tree/master/scripts/01-traffic-management)
-- [Chapter 11 - Exploring Istio Security Features](https://github.com/servicemeshbook/istio/tree/master/scripts/02-security)
-- [Chapter 12 - Enabling Istio Policy Controls](https://github.com/servicemeshbook/istio/tree/master/scripts/03-policies)
-- [Chapter 13 - Exploring Istio Telemetry Features](https://github.com/servicemeshbook/istio/tree/master/scripts/04-telemetry)
+- [Chapter 06 - Build Your Own Kubernetes Environment](/byok)
+- [Chapter 08 - Installing a Demo Application](/demo-application.md)
+- [Chapter 09 - Installing Istio](/Install-Istio.md)
+- [Chapter 10 - Exploring Istio Traffic Management Capabilities](/scripts/01-traffic-management)
+- [Chapter 11 - Exploring Istio Security Features](/scripts/02-security)
+- [Chapter 12 - Enabling Istio Policy Controls](/scripts/03-policies)
+- [Chapter 13 - Exploring Istio Telemetry Features](/scripts/04-telemetry)
 
 ## Version
 
-This branch has scripts that works with 1.3.3 release of Istio.
+This branch has scripts that works with 1.3.5 release of Istio.
 
 ## Istio Chapters Walk-Through
 
