@@ -1,6 +1,4 @@
-# Istio - Traffic Management
-
-## Commands used in Chapter 10 - Traffic Management
+# Chapter 10 - Exploring Istio Traffic Management Capabilities
 
 ### Get scripts from github
 
