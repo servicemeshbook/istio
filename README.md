@@ -12,7 +12,9 @@
 
 This branch has scripts that works with 1.3.5 release of Istio.
 
-## Disclaimer: Some of the command outputs such as pod, service, and deployment names, IP addresses etc. might not always match to what's in the book. But the expected behavior will be the same. 
+### Disclaimer 
+
+Some of the command outputs such as pod, service, and deployment names, IP addresses etc. might not always match to what's in the book. But the expected behavior will be the same. 
 
 ## Istio Chapters Walk-Through
 
