@@ -1,6 +1,6 @@
-# Istio - Security
+# Chapter 11 - Exploring Istio Security Features
 
-## Commands used in Chapter 11 - Security
+## Commands used
 
 ### Change directory
 
